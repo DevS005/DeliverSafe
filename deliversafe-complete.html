@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DeliverSafe — Delivery Insurance Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#0D0F14; --s1:#161920; --s2:#1E222C; --s3:#252A35;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --text:#F0F2F7; --muted:#7A8099; --muted2:#9AA0B8;
+  --green:#4CFFA0; --orange:#FF6B35; --blue:#4CBBFF;
+  --yellow:#FFD166; --red:#FF4D6D; --purple:#A78BFA;
+  --r:14px; --rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Syne',sans-serif}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:240px;min-width:240px;background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;z-index:10}
+.logo{padding:0 22px 24px;border-bottom:1px solid var(--border);margin-bottom:18px}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.logo-name{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.5px}
+.logo-sub{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+.nav-grp{padding:0 12px;margin-bottom:6px}
+.nav-lbl{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:0 10px;margin-bottom:5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:var(--rs);cursor:pointer;font-size:13.5px;color:var(--muted);transition:all .15s;font-weight:400;position:relative}
+.nav-item:hover{background:var(--s2);color:var(--text)}
+.nav-item.active{background:rgba(76,255,160,.1);color:var(--green);font-weight:500}
+.nav-item.active .ndot{background:var(--green)}
+.ndot{width:5px;height:5px;border-radius:50%;background:var(--s3);flex-shrink:0}
+.nbadge{margin-left:auto;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px}
+.nbadge.red{background:var(--orange);color:#fff}
+.nbadge.grn{background:rgba(76,255,160,.15);color:var(--green)}
+.nbadge.ylw{background:rgba(255,209,102,.15);color:var(--yellow)}
+.nbadge.pur{background:rgba(167,139,250,.15);color:var(--purple)}
+.sidebar-foot{margin-top:auto;padding:14px 12px 0;border-top:1px solid var(--border)}
+.agent-pill{display:flex;align-items:center;gap:9px;padding:10px 10px;background:var(--s2);border-radius:var(--rs);cursor:pointer}
+.av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--green));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#0D0F14;flex-shrink:0}
+.agent-name{font-size:13px;font-weight:500}
+.agent-status{font-size:10px;color:var(--green)}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 30px;border-bottom:1px solid var(--border);background:rgba(13,15,20,.92);backdrop-filter:blur(12px);flex-shrink:0;z-index:5}
+.page-title{font-family:'Syne',sans-serif;font-weight:700;font-size:19px}
+.topbar-right{display:flex;align-items:center;gap:11px}
+.chip{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:20px;font-size:12px;cursor:pointer}
+.chip-warn{background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.25);color:var(--yellow)}
+.ibtn{width:34px;height:34px;background:var(--s1);border:1px solid var(--border);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:background .15s;position:relative}
+.ibtn:hover{background:var(--s2)}
+.notif-dot{width:7px;height:7px;background:var(--orange);border-radius:50%;position:absolute;top:-2px;right:-2px}
+
+/* ── SCROLL ── */
+.scroll{flex:1;overflow-y:auto;padding:26px 30px 40px}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--s3);border-radius:4px}
+
+/* ── PAGE SECTIONS ── */
+.pg{display:none}
+.pg.active{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px}
+.card-body{padding:20px}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.gmain{display:grid;grid-template-columns:1.45fr 1fr;gap:18px}
+
+/* ── STAT CARDS ── */
+.stat{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:20px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;cursor:pointer}
+.stat:hover{border-color:var(--border2);transform:translateY(-2px)}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat.grn::before{background:var(--green)}
+.stat.org::before{background:var(--orange)}
+.stat.blu::before{background:var(--blue)}
+.stat.ylw::before{background:var(--yellow)}
+.stat.pur::before{background:var(--purple)}
+.stat-lbl{font-size:11px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.8px}
+.stat-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:8px}
+.stat-val.grn{color:var(--green)} .stat-val.org{color:var(--orange)} .stat-val.blu{color:var(--blue)} .stat-val.ylw{color:var(--yellow)} .stat-val.pur{color:var(--purple)}
+.stat-sub{font-size:12px;color:var(--muted)}
+.stat-sub span{color:var(--green)}
+.stat-ico{position:absolute;right:16px;top:16px;font-size:22px;opacity:.15}
+
+/* ── ALERT BANNER ── */
+.alert-banner{background:linear-gradient(135deg,rgba(255,107,53,.15),rgba(255,107,53,.05));border:1px solid rgba(255,107,53,.3);border-radius:var(--r);padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:24px;cursor:pointer;transition:border-color .2s}
+.alert-banner:hover{border-color:rgba(255,107,53,.6)}
+.alert-icon{font-size:26px;flex-shrink:0}
+.alert-content{flex:1}
+.alert-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:3px;color:var(--orange)}
+.alert-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.alert-cta{background:var(--orange);color:#fff;padding:8px 16px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:none;transition:opacity .15s}
+.alert-cta:hover{opacity:.85}
+
+/* ── QUICK ACTIONS ── */
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.quick-btn{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px 12px;text-align:center;cursor:pointer;transition:all .18s}
+.quick-btn:hover{border-color:var(--border2);background:var(--s2);transform:translateY(-2px)}
+.quick-icon{font-size:22px;margin-bottom:7px}
+.quick-lbl{font-size:12px;color:var(--muted);font-weight:500}
+.quick-sub{font-size:10px;color:var(--muted);opacity:.6;margin-top:2px}
+
+/* ── TABLES ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:left;padding:0 0 11px;font-weight:500}
+.tbl td{padding:11px 0;border-top:1px solid var(--border);font-size:13px;vertical-align:middle}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.b-approved{background:rgba(76,255,160,.1);color:var(--green)}
+.b-pending{background:rgba(255,209,102,.1);color:var(--yellow)}
+.b-review{background:rgba(76,187,255,.1);color:var(--blue)}
+.b-rejected{background:rgba(255,77,109,.1);color:var(--red)}
+.b-appeal{background:rgba(167,139,250,.12);color:var(--purple)}
+.b-storm{background:rgba(255,107,53,.1);color:var(--orange)}
+.b-rain{background:rgba(76,187,255,.1);color:var(--blue)}
+.b-flood{background:rgba(76,255,160,.1);color:var(--green)}
+
+/* ── ACTIVITY ── */
+.act-feed{display:flex;flex-direction:column}
+.act-item{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)}
+.act-item:last-child{border-bottom:none}
+.act-dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.act-text{font-size:13px;line-height:1.5;flex:1}
+.act-time{font-size:11px;color:var(--muted);margin-top:2px}
+.act-hi{color:var(--text);font-weight:500}
+
+/* ── PAYMENT LIST ── */
+.pay-list{display:flex;flex-direction:column}
+.pay-item{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)}
+.pay-item:last-child{border-bottom:none}
+.pay-icon{width:36px;height:36px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.pay-name{font-size:13px;font-weight:500}
+.pay-date{font-size:11px;color:var(--muted);margin-top:1px}
+.pay-amt{font-family:'Syne',sans-serif;font-weight:700;font-size:14px}
+
+/* ── RISK BARS ── */
+.risk-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.risk-lbl{font-size:12px;color:var(--muted);width:70px}
+.risk-wrap{flex:1;height:7px;background:var(--s2);border-radius:4px;overflow:hidden}
+.risk-bar{height:100%;border-radius:4px}
+.risk-cnt{font-size:12px;font-family:'Syne',sans-serif;font-weight:600;width:28px;text-align:right}
+
+/* ── FORMS ── */
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+.fg label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:500}
+.fi{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);padding:9px 13px;font-size:13px;font-family:'DM Sans',sans-serif;transition:border-color .15s;outline:none}
+.fi:focus{border-color:var(--green)}
+.fi:read-only{color:var(--green);cursor:default;border-color:rgba(76,255,160,.2)}
+textarea.fi{resize:vertical;min-height:70px;line-height:1.5}
+select.fi{appearance:none;cursor:pointer}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── BUTTONS ── */
+.btn-p{background:var(--green);color:#0D0F14;border:none;padding:11px 20px;border-radius:var(--rs);font-size:13px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:opacity .15s;letter-spacing:.3px}
+.btn-p:hover{opacity:.85}
+.btn-s{background:transparent;color:var(--text);border:1px solid var(--border2);padding:10px 20px;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;font-family:'DM Sans',sans-serif}
+.btn-s:hover{background:var(--s2)}
+.btn-ghost{background:transparent;color:var(--purple);border:1px solid rgba(167,139,250,.25);padding:9px 16px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Syne',sans-serif}
+.btn-ghost:hover{background:rgba(167,139,250,.08)}
+.brow{display:flex;gap:10px}
+
+/* ── COVERAGE BAR ── */
+.cov-wrap{background:var(--s2);border-radius:6px;height:10px;overflow:hidden;margin:8px 0}
+.cov-bar{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:6px}
+
+/* ── CHART BARS ── */
+.chart-group{display:flex;align-items:flex-end;gap:6px;height:100px;padding-top:10px}
+.chart-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.chart-bar{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:opacity .15s}
+.chart-bar:hover{opacity:.75}
+.chart-lbl{font-size:10px;color:var(--muted)}
+
+/* ── PLAN CARDS ── */
+.plan{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:20px;cursor:pointer;transition:all .2s}
+.plan:hover{border-color:var(--border2);transform:translateY(-2px)}
+.plan.featured{border-color:rgba(76,255,160,.35);background:linear-gradient(135deg,rgba(76,255,160,.05),var(--s1))}
+.plan-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px}
+.plan-price{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--green);margin-bottom:12px}
+.plan-price span{font-size:13px;color:var(--muted);font-weight:400;font-family:'DM Sans',sans-serif}
+.plan-feat{list-style:none;display:flex;flex-direction:column;gap:6px}
+.plan-feat li{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.plan-feat li::before{content:'✓';color:var(--green);font-weight:700}
+
+/* ── SETTINGS TOGGLE ── */
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border)}
+.set-row:last-child{border-bottom:none}
+.set-info h4{font-size:13px;font-weight:500;margin-bottom:2px}
+.set-info p{font-size:11px;color:var(--muted)}
+.toggle{width:40px;height:22px;background:var(--s3);border-radius:11px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--green)}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s}
+.toggle.on::after{left:21px}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:2px;background:var(--s2);border-radius:var(--rs);padding:3px;margin-bottom:16px}
+.tab{flex:1;text-align:center;padding:8px;border-radius:6px;font-size:12px;cursor:pointer;color:var(--muted);transition:all .15s}
+.tab.active{background:var(--s1);color:var(--text);font-weight:500}
+
+/* ── MAP ── */
+.map-box{background:var(--s2);border-radius:var(--rs);height:220px;position:relative;overflow:hidden}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:30px 30px}
+.map-storm{position:absolute;border-radius:50%;animation:pulse-s 2s ease-in-out infinite}
+@keyframes pulse-s{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.15);opacity:1}}
+.map-lbl{position:absolute;font-size:10px;color:var(--muted);font-family:'Syne',sans-serif;letter-spacing:.5px}
+
+/* ── PROFILE ── */
+.prof-head{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:26px;display:flex;align-items:center;gap:22px;margin-bottom:18px}
+.prof-av{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--green));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:#0D0F14;flex-shrink:0}
+.prof-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.meta-chip{font-size:11px;color:var(--muted);background:var(--s2);padding:4px 9px;border-radius:20px;display:flex;align-items:center;gap:4px}
+
+/* ────────────────────────────────
+   APPEAL PAGE STYLES
+──────────────────────────────── */
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-bottom:18px}
+.bc-sep{opacity:.4}
+.steps-bar{display:flex;align-items:center;gap:0;margin-bottom:24px}
+.step{display:flex;align-items:center;gap:7px;flex:1}
+.step:last-child{flex:0}
+.step-c{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;flex-shrink:0;transition:all .3s}
+.step-c.done{background:var(--green);color:#0D0F14}
+.step-c.active{background:rgba(76,255,160,.15);border:2px solid var(--green);color:var(--green)}
+.step-c.todo{background:var(--s2);border:1px solid var(--border2);color:var(--muted)}
+.step-lbl{font-size:11px;font-weight:500;transition:color .3s}
+.step-lbl.active{color:var(--green)} .step-lbl.done{color:var(--muted2)} .step-lbl.todo{color:var(--muted)}
+.step-line{flex:1;height:1px;background:var(--border2);margin:0 7px}
+.step-line.done{background:var(--green);opacity:.4}
+.upload-zone{border:1px dashed var(--border2);border-radius:var(--rs);padding:15px;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:12px}
+.upload-zone:hover{border-color:var(--green);background:rgba(76,255,160,.03)}
+.upload-chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:6px}
+.upload-chip{display:flex;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:4px 9px;font-size:11px;color:var(--muted2)}
+.city-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.city-row:last-child{border-bottom:none}
+.city-key{color:var(--muted)}
+.city-val{font-weight:500}
+.col-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.col-mid{background:rgba(255,209,102,.12);color:var(--yellow)}
+.col-high{background:rgba(255,107,53,.12);color:var(--orange)}
+.col-low{background:rgba(76,255,160,.12);color:var(--green)}
+.sev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:13px}
+.sev-btn{border:1px solid var(--border);background:var(--s2);border-radius:var(--rs);padding:10px 6px;text-align:center;cursor:pointer;transition:all .15s}
+.sev-btn.sel-1{border-color:var(--blue);background:rgba(76,184,255,.1)}
+.sev-btn.sel-2{border-color:var(--yellow);background:rgba(255,209,102,.1)}
+.sev-btn.sel-3{border-color:var(--orange);background:rgba(255,107,53,.1)}
+.sev-btn.sel-4{border-color:var(--red);background:rgba(255,77,109,.1)}
+.platform-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}
+.plat-pill{display:flex;align-items:center;gap:6px;padding:7px 13px;border:1px solid var(--border);border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;color:var(--muted);transition:all .15s}
+.plat-pill:hover{border-color:var(--border2);color:var(--text)}
+.plat-pill.sel{border-color:var(--green);background:rgba(76,255,160,.08);color:var(--green)}
+.ai-panel{background:linear-gradient(135deg,rgba(167,139,250,.06),rgba(76,255,160,.04));border:1px solid rgba(167,139,250,.2);border-radius:var(--r);overflow:hidden}
+.ai-head{padding:14px 16px;border-bottom:1px solid rgba(167,139,250,.15);display:flex;align-items:center;gap:10px}
+.ai-orb{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--blue));display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;animation:orb-pulse 3s ease-in-out infinite}
+@keyframes orb-pulse{0%,100%{box-shadow:0 0 0 0 rgba(167,139,250,.3)}50%{box-shadow:0 0 0 8px rgba(167,139,250,0)}}
+.factor-item{margin-bottom:11px}
+.factor-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.factor-name{font-size:12px;color:var(--muted2)}
+.factor-score{font-family:'Syne',sans-serif;font-weight:700;font-size:12px}
+.fbar-wrap{height:6px;background:var(--s3);border-radius:3px;overflow:hidden}
+.fbar{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.payout-total{text-align:center;padding:16px 0 12px;border-bottom:1px solid var(--border)}
+.payout-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.payout-amt{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;color:var(--green);line-height:1}
+.payout-range{font-size:11px;color:var(--muted);margin-top:4px}
+.bdown-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.bdown-row:last-child{border-bottom:none;padding-top:9px;font-size:13px;font-weight:600}
+.bdown-key{color:var(--muted)}
+.bdown-val{font-family:'Syne',sans-serif;font-weight:600}
+.thinking-dots span{display:inline-block;width:5px;height:5px;background:var(--purple);border-radius:50%;margin:0 2px;animation:td .8s ease-in-out infinite}
+.thinking-dots span:nth-child(2){animation-delay:.15s}
+.thinking-dots span:nth-child(3){animation-delay:.3s}
+@keyframes td{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.tl-item{display:flex;gap:11px;padding:10px 0;border-bottom:1px solid var(--border)}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.acc-item{border:1px solid var(--border);border-radius:var(--rs);overflow:hidden;margin-bottom:7px}
+.acc-head{padding:11px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:13px;font-weight:500;transition:background .15s}
+.acc-head:hover{background:var(--s2)}
+.acc-body{padding:0 14px 13px;font-size:12px;color:var(--muted);line-height:1.6;display:none}
+.acc-body.open{display:block}
+.acc-arr{transition:transform .2s;font-size:12px;color:var(--muted)}
+.acc-arr.open{transform:rotate(180deg)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:26px;right:26px;padding:12px 20px;border-radius:var(--r);font-family:'Syne',sans-serif;font-weight:700;font-size:13px;z-index:999;transition:all .3s;pointer-events:none;transform:translateY(10px);opacity:0}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--green);color:#0D0F14;box-shadow:0 8px 24px rgba(76,255,160,.25)}
+.toast.info{background:var(--purple);color:#fff;box-shadow:0 8px 24px rgba(167,139,250,.25)}
+.divider{height:1px;background:var(--border);margin:14px 0}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════════════════ SIDEBAR ══════════════════ -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-row">
+      <div class="logo-icon">🛡️</div>
+      <div><div class="logo-name">DeliverSafe</div><div class="logo-sub">Insurance Portal</div></div>
+    </div>
+  </div>
+  <div class="nav-grp">
+    <div class="nav-lbl">Main</div>
+    <div class="nav-item active" onclick="go('dashboard',this)"><div class="ndot"></div><span>⊞</span> Dashboard</div>
+    <div class="nav-item" onclick="go('claims',this)"><div class="ndot"></div><span>📋</span> My Claims <span class="nbadge red">3</span></div>
+    <div class="nav-item" onclick="go('fileclaim',this)"><div class="ndot"></div><span>➕</span> File a Claim</div>
+    <div class="nav-item" onclick="go('appeal',this)"><div class="ndot"></div><span>⚖️</span> Appeal Request <span class="nbadge pur">New</span></div>
+    <div class="nav-item" onclick="go('weather',this)"><div class="ndot"></div><span>🌩</span> Weather Map <span class="nbadge ylw">Alert</span></div>
+  </div>
+  <div class="nav-grp" style="margin-top:6px">
+    <div class="nav-lbl">Finance</div>
+    <div class="nav-item" onclick="go('payouts',this)"><div class="ndot"></div><span>💰</span> Payouts <span class="nbadge grn">₹840</span></div>
+    <div class="nav-item" onclick="go('coverage',this)"><div class="ndot"></div><span>🛡</span> My Coverage</div>
+    <div class="nav-item" onclick="go('analytics',this)"><div class="ndot"></div><span>📊</span> Analytics</div>
+  </div>
+  <div class="nav-grp" style="margin-top:6px">
+    <div class="nav-lbl">Account</div>
+    <div class="nav-item" onclick="go('profile',this)"><div class="ndot"></div><span>👤</span> Profile</div>
+    <div class="nav-item" onclick="go('settings',this)"><div class="ndot"></div><span>⚙</span> Settings</div>
+  </div>
+  <div class="sidebar-foot">
+    <div class="agent-pill">
+      <div class="av">RK</div>
+      <div><div class="agent-name">Ravi Kumar</div><div class="agent-status">● Active · Blinkit</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ══════════════════ MAIN ══════════════════ -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-title" id="ptitle">Dashboard</div>
+    <div class="topbar-right">
+      <div class="chip chip-warn">⚠️ Storm Alert — Zone 3</div>
+      <div class="ibtn" style="position:relative"><div class="notif-dot"></div>🔔</div>
+      <div class="ibtn">🔍</div>
+    </div>
+  </div>
+
+  <div class="scroll">
+
+<!-- ══════════════════════════════════════════
+     PAGE: DASHBOARD
+══════════════════════════════════════════ -->
+<div class="pg active" id="pg-dashboard">
+  <div class="alert-banner" onclick="go('fileclaim',document.querySelectorAll('.nav-item')[2])">
+    <div class="alert-icon">🌪️</div>
+    <div class="alert-content">
+      <div class="alert-title">Severe Storm Alert — Chennai Zone 3 &amp; 5</div>
+      <div class="alert-desc">Cyclonic storm detected in your delivery zone. If you cannot complete deliveries, you are eligible for insurance compensation.</div>
+    </div>
+    <button class="alert-cta">File Claim →</button>
+  </div>
+
+  <div class="g4" style="margin-bottom:24px">
+    <div class="stat grn"><div class="stat-lbl">Total Payouts</div><div class="stat-val grn">₹4,280</div><div class="stat-sub">This month — <span>+₹840</span></div><div class="stat-ico">💰</div></div>
+    <div class="stat org"><div class="stat-lbl">Pending Claims</div><div class="stat-val org">3</div><div class="stat-sub">Avg. approval: <span>4.2 hrs</span></div><div class="stat-ico">⏳</div></div>
+    <div class="stat blu"><div class="stat-lbl">Coverage Days</div><div class="stat-val blu">22</div><div class="stat-sub">Out of 30 this month</div><div class="stat-ico">🛡</div></div>
+    <div class="stat ylw"><div class="stat-lbl">AI Risk Score</div><div class="stat-val ylw">High</div><div class="stat-sub">Your zone today</div><div class="stat-ico">🌡</div></div>
+  </div>
+
+  <div class="quick-grid">
+    <div class="quick-btn" onclick="go('fileclaim',document.querySelectorAll('.nav-item')[2])"><div class="quick-icon">📝</div><div class="quick-lbl">File a Claim</div><div class="quick-sub">~60 sec process</div></div>
+    <div class="quick-btn" onclick="go('appeal',document.querySelectorAll('.nav-item')[3])"><div class="quick-icon">⚖️</div><div class="quick-lbl">Appeal Request</div><div class="quick-sub">Challenge a rejection</div></div>
+    <div class="quick-btn" onclick="go('weather',document.querySelectorAll('.nav-item')[4])"><div class="quick-icon">🗺</div><div class="quick-lbl">Weather Map</div><div class="quick-sub">Live storm zones</div></div>
+    <div class="quick-btn" onclick="go('payouts',document.querySelectorAll('.nav-item')[5])"><div class="quick-icon">💳</div><div class="quick-lbl">View Payouts</div><div class="quick-sub">Earnings &amp; history</div></div>
+  </div>
+
+  <div class="gmain">
+    <div class="card">
+      <div class="card-head"><div class="card-title">Recent Claims</div><div style="font-size:12px;color:var(--green);cursor:pointer" onclick="go('claims',document.querySelectorAll('.nav-item')[1])">View all →</div></div>
+      <div class="card-body" style="padding:0 20px">
+        <table class="tbl">
+          <thead><tr><th>Claim ID</th><th>Date</th><th>Condition</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td style="font-size:11px;color:var(--muted)">#CLM-0041</td><td style="color:var(--muted);font-size:12px">Mar 17</td><td><span class="badge b-storm">⛈ Storm</span></td><td style="font-family:'Syne',sans-serif;font-weight:600;color:var(--green)">₹350</td><td><span class="badge b-approved">✓ Approved</span></td></tr>
+            <tr><td style="font-size:11px;color:var(--muted)">#CLM-0039</td><td style="color:var(--muted);font-size:12px">Mar 14</td><td><span class="badge b-rain">🌧 Heavy Rain</span></td><td style="font-family:'Syne',sans-serif;font-weight:600;color:var(--yellow)">₹210</td><td><span class="badge b-pending">⏳ Pending</span></td></tr>
+            <tr><td style="font-size:11px;color:var(--muted)">#CLM-0037</td><td style="color:var(--muted);font-size:12px">Mar 10</td><td><span class="badge b-flood">🌊 Flood</span></td><td style="font-family:'Syne',sans-serif;font-weight:600;color:var(--green)">₹490</td><td><span class="badge b-approved">✓ Approved</span></td></tr>
+            <tr><td style="font-size:11px;color:var(--muted)">#CLM-0035</td><td style="color:var(--muted);font-size:12px">Mar 7</td><td><span class="badge b-storm">⛈ Storm</span></td><td style="font-family:'Syne',sans-serif;font-weight:600;color:var(--blue)">₹280</td><td><span class="badge b-review">👁 In Review</span></td></tr>
+            <tr><td style="font-size:11px;color:var(--muted)">#CLM-0033</td><td style="color:var(--muted);font-size:12px">Mar 3</td><td><span class="badge b-rain">🌧 Heavy Rain</span></td><td style="font-family:'Syne',sans-serif;font-weight:600;color:var(--red)">₹180</td><td><span class="badge b-rejected">✕ Rejected</span> <span class="badge b-appeal" style="cursor:pointer" onclick="go('appeal',document.querySelectorAll('.nav-item')[3])">⚖ Appeal</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">Live Activity</div><div style="font-size:11px;color:var(--green)">● Live</div></div>
+      <div class="card-body" style="padding:0 20px">
+        <div class="act-feed">
+          <div class="act-item"><div class="act-dot" style="background:var(--green)"></div><div><div class="act-text"><span class="act-hi">₹350 payout</span> credited for claim #CLM-0041</div><div class="act-time">2 mins ago</div></div></div>
+          <div class="act-item"><div class="act-dot" style="background:var(--yellow)"></div><div><div class="act-text">AI flagged <span class="act-hi">Storm Alert</span> in Zone 3 — 12 agents notified</div><div class="act-time">18 mins ago</div></div></div>
+          <div class="act-item"><div class="act-dot" style="background:var(--purple)"></div><div><div class="act-text">Appeal <span class="act-hi">#APL-0008</span> approved — ₹420 payout issued</div><div class="act-time">1 hr ago</div></div></div>
+          <div class="act-item"><div class="act-dot" style="background:var(--blue)"></div><div><div class="act-text">Claim <span class="act-hi">#CLM-0037</span> moved to manual review</div><div class="act-time">2 hrs ago</div></div></div>
+          <div class="act-item"><div class="act-dot" style="background:var(--muted)"></div><div><div class="act-text"><span class="act-hi">Coverage renewed</span> — Standard Plan until Apr 19</div><div class="act-time">Yesterday</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: MY CLAIMS
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-claims">
+  <div class="tabs">
+    <div class="tab active" onclick="setTab(this)">All (9)</div>
+    <div class="tab" onclick="setTab(this)">Pending (3)</div>
+    <div class="tab" onclick="setTab(this)">Approved (5)</div>
+    <div class="tab" onclick="setTab(this)">Rejected (1)</div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-title">Claims History</div><button class="btn-s" style="padding:7px 14px;font-size:12px" onclick="go('fileclaim',document.querySelectorAll('.nav-item')[2])">+ New Claim</button></div>
+    <div class="card-body" style="padding:0 20px">
+      <table class="tbl">
+        <thead><tr><th>Claim ID</th><th>Filed On</th><th>Condition</th><th>Zone</th><th>Payout</th><th>AI Score</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td style="font-size:11px;color:var(--muted)">#CLM-0041</td><td style="font-size:12px;color:var(--muted)">Mar 17</td><td><span class="badge b-storm">⛈ Storm</span></td><td style="font-size:12px;color:var(--muted)">Zone 3</td><td style="font-family:'Syne',sans-serif;font-weight:600;color:var(--green)">₹350</td><td style="color:var(--green);font-size:12px;font-weight:600">94%</td><td><span class="badge b-approved">✓ Approved</span></td><td>—</td></tr>
+          <tr><td style="font-size:11px;color:var(--muted)">#CLM-0039</td><td style="font-size:12px;color:var(--muted)">Mar 14</td><td><span class="badge b-rain">🌧 Heavy Rain</span></td><td style="font-size:12px;color:var(--muted)">Zone 3</td><td style="font-family:'Syne',sans-serif;font-weight:600;color:var(--yellow)">Pending</td><td style="color:var(--yellow);font-size:12px;font-weight:600">65%</td><td><span class="badge b-pending">⏳ Pending</span></td><td>—</td></tr>
+          <tr><td style="font-size:11px;color:var(--muted)">#CLM-0037</td><td style="font-size:12px;color:var(--muted)">Mar 10</td><td><span class="badge b-flood">🌊 Flood</span></td><td style="font-size:12px;color:var(--muted)">Zone 1</td><td style="font-family:'Syne',sans-serif;font-weight:600;color:var(--blue)">Under Review</td><td style="color:var(--blue);font-size:12px;font-weight:600">58%</td><td><span class="badge b-review">👁 Review</span></td><td>—</td></tr>
+          <tr><td style="font-size:11px;color:var(--muted)">#CLM-0035</td><td style="font-size:12px;color:var(--muted)">Mar 7</td><td><span class="badge b-storm">⛈ Storm</span></td><td style="font-size:12px;color:var(--muted)">Zone 3</td><td style="font-family:'Syne',sans-serif;font-weight:600;color:var(--green)">₹280</td><td style="color:var(--green);font-size:12px;font-weight:600">88%</td><td><span class="badge b-approved">✓ Approved</span></td><td>—</td></tr>
+          <tr style="background:rgba(167,139,250,.04)"><td style="font-size:11px;color:var(--muted)">#CLM-0033</td><td style="font-size:12px;color:var(--muted)">Mar 3</td><td><span class="badge b-rain">🌧 Heavy Rain</span></td><td style="font-size:12px;color:var(--muted)">Zone 2</td><td style="font-family:'Syne',sans-serif;font-weight:600;color:var(--red)">Rejected</td><td style="color:var(--red);font-size:12px;font-weight:600">22%</td><td><span class="badge b-rejected">✕ Rejected</span></td><td><span class="badge b-appeal" style="cursor:pointer" onclick="go('appeal',document.querySelectorAll('.nav-item')[3])">⚖ Appeal</span></td></tr>
+          <tr><td style="font-size:11px;color:var(--muted)">#CLM-0030</td><td style="font-size:12px;color:var(--muted)">Feb 28</td><td><span class="badge b-storm">⛈ Storm</span></td><td style="font-size:12px;color:var(--muted)">Zone 3</td><td style="font-family:'Syne',sans-serif;font-weight:600;color:var(--green)">₹490</td><td style="color:var(--green);font-size:12px;font-weight:600">97%</td><td><span class="badge b-approved">✓ Approved</span></td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: FILE A CLAIM
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-fileclaim">
+  <div class="alert-banner" style="cursor:default">
+    <div class="alert-icon">🤖</div>
+    <div class="alert-content">
+      <div class="alert-title">AI Auto-Verify Active</div>
+      <div class="alert-desc">Your GPS location will be cross-matched with real-time storm data. If verified, your claim is approved automatically within 60 seconds.</div>
+    </div>
+  </div>
+  <div class="gmain">
+    <div class="card">
+      <div class="card-head"><div class="card-title">New Claim Form</div></div>
+      <div class="card-body">
+        <div class="frow"><div class="fg"><label>Claim Date</label><input class="fi" type="date" value="2025-03-19"/></div><div class="fg"><label>Time of Incident</label><input class="fi" type="time" value="14:30"/></div></div>
+        <div class="fg"><label>Platform</label>
+          <div class="platform-row" style="margin-bottom:0" id="fc-plat">
+            <div class="plat-pill sel" onclick="selPlat(this,'fc-plat')"><span>🟡</span>Blinkit</div>
+            <div class="plat-pill" onclick="selPlat(this,'fc-plat')"><span>🟣</span>Zepto</div>
+            <div class="plat-pill" onclick="selPlat(this,'fc-plat')"><span>🔴</span>Swiggy Instamart</div>
+            <div class="plat-pill" onclick="selPlat(this,'fc-plat')"><span>🔵</span>BigBasket Now</div>
+          </div>
+        </div>
+        <div class="fg"><label>Weather Condition</label>
+          <select class="fi"><option>⛈ Severe Storm / Cyclone</option><option>🌧 Heavy Rain (undeliverable)</option><option>🌊 Flood / Waterlogging</option><option>🌬 Extreme Wind</option><option>⚡ Lightning Warning</option></select>
+        </div>
+        <div class="fg"><label>Delivery Zone</label>
+          <select class="fi"><option>Zone 3 — T. Nagar, Chennai</option><option>Zone 1 — Adyar</option><option>Zone 2 — Velachery</option><option>Zone 5 — Perungudi</option></select>
+        </div>
+        <div class="fg"><label>GPS Location (auto-detected)</label><input class="fi" value="📍 13.0418° N, 80.2341° E — T. Nagar" readonly/></div>
+        <div class="fg"><label>Deliveries Affected</label><input class="fi" type="number" value="4" min="1"/></div>
+        <div class="fg"><label>Description (optional)</label><textarea class="fi" rows="2" placeholder="Briefly describe the conditions..."></textarea></div>
+        <div class="fg"><label>Upload Evidence</label>
+          <div class="upload-zone"><div style="font-size:20px;margin-bottom:4px">📷</div><div style="font-size:12px;color:var(--muted)">Drop photo or video here, or click to browse</div></div>
+        </div>
+        <button class="btn-p" style="width:100%" onclick="showToast('Claim submitted! Auto-approved in 12s ✓','success')">Submit Claim →</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Payout Estimate</div></div>
+        <div class="card-body">
+          <div style="text-align:center;padding:8px 0 14px">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">Estimated Compensation</div>
+            <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:var(--green)">₹420</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:3px">Based on 4 deliveries × Standard plan</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Base per delivery</span><span>₹85</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Deliveries missed</span><span>× 4</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Severity bonus (Storm)</span><span style="color:var(--green)">+₹80</span></div>
+            <div style="border-top:1px solid var(--border);padding-top:8px;display:flex;justify-content:space-between;font-size:14px;font-weight:600"><span>Total</span><span style="color:var(--green)">₹420</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">AI Verification</div></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:9px">
+          <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--muted)">GPS zone match</span><span style="color:var(--green);font-size:13px;font-weight:600">✓ Confirmed</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--muted)">Weather record match</span><span style="color:var(--green);font-size:13px;font-weight:600">✓ Confirmed</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--muted)">AI confidence</span><span style="color:var(--green);font-family:'Syne',sans-serif;font-weight:800;font-size:16px">94%</span></div>
+          <div style="background:rgba(76,255,160,.08);border:1px solid rgba(76,255,160,.2);border-radius:var(--rs);padding:9px;font-size:12px;color:var(--green);text-align:center">Likely auto-approved upon submission</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: APPEAL REQUEST
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-appeal">
+  <div class="breadcrumb">
+    <span style="cursor:pointer" onclick="go('dashboard',document.querySelectorAll('.nav-item')[0])">Dashboard</span><span class="bc-sep">›</span>
+    <span style="cursor:pointer" onclick="go('claims',document.querySelectorAll('.nav-item')[1])">My Claims</span><span class="bc-sep">›</span>
+    <span style="color:var(--purple)">Appeal Request</span>
+  </div>
+
+  <!-- STEP BAR -->
+  <div class="steps-bar">
+    <div class="step"><div class="step-c active" id="sc1">1</div><div class="step-lbl active" id="sl1">Claim Details</div></div>
+    <div class="step-line" id="sline1"></div>
+    <div class="step"><div class="step-c todo" id="sc2">2</div><div class="step-lbl todo" id="sl2">Weather & Conditions</div></div>
+    <div class="step-line" id="sline2"></div>
+    <div class="step"><div class="step-c todo" id="sc3">3</div><div class="step-lbl todo" id="sl3">AI Assessment</div></div>
+    <div class="step-line" id="sline3"></div>
+    <div class="step"><div class="step-c todo" id="sc4">4</div><div class="step-lbl todo" id="sl4">Submit Appeal</div></div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div id="astep1">
+    <div class="gmain">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Which claim are you appealing?</div></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+              <div class="claim-opt sel-claim" data-id="CLM-0033" onclick="selClaim(this)" style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid rgba(167,139,250,.35);background:rgba(167,139,250,.07);border-radius:var(--rs);cursor:pointer;transition:all .15s">
+                <div style="width:34px;height:34px;border-radius:8px;background:rgba(255,77,109,.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🌧</div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:500">#CLM-0033 — Heavy Rain</div><div style="font-size:11px;color:var(--muted)">Mar 3, 2025 · Zone 2 · ₹180 requested</div></div>
+                <span class="badge b-rejected">✕ Rejected</span>
+                <div class="sel-dot" style="width:16px;height:16px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;flex-shrink:0">✓</div>
+              </div>
+              <div class="claim-opt" data-id="CLM-0037" onclick="selClaim(this)" style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid var(--border);background:var(--s2);border-radius:var(--rs);cursor:pointer;transition:all .15s">
+                <div style="width:34px;height:34px;border-radius:8px;background:rgba(76,184,255,.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🌊</div>
+                <div style="flex:1"><div style="font-size:13px;font-weight:500">#CLM-0037 — Flood</div><div style="font-size:11px;color:var(--muted)">Mar 10, 2025 · Zone 1 · ₹490 requested</div></div>
+                <span class="badge b-review">👁 In Review</span>
+                <div class="sel-dot" style="width:16px;height:16px;border-radius:50%;background:var(--s3);border:1px solid var(--border2);flex-shrink:0"></div>
+              </div>
+            </div>
+            <div style="background:rgba(255,77,109,.06);border:1px solid rgba(255,77,109,.2);border-radius:var(--rs);padding:11px 13px;margin-bottom:13px">
+              <div style="font-size:11px;color:var(--red);font-weight:600;margin-bottom:3px">⚠ Rejection Reason</div>
+              <div style="font-size:12px;color:var(--muted2);line-height:1.5">AI confidence score was 22% — weather data could not confirm severe conditions at GPS coordinates during the claim window. Zone 2 was partially affected, not fully.</div>
+            </div>
+            <div class="fg"><label>Platform / Employer</label>
+              <div class="platform-row" id="ap-plat">
+                <div class="plat-pill sel" onclick="selPlat(this,'ap-plat')"><span>🟡</span>Blinkit</div>
+                <div class="plat-pill" onclick="selPlat(this,'ap-plat')"><span>🟣</span>Zepto</div>
+                <div class="plat-pill" onclick="selPlat(this,'ap-plat')"><span>🔴</span>Swiggy Instamart</div>
+                <div class="plat-pill" onclick="selPlat(this,'ap-plat')"><span>🔵</span>BigBasket Now</div>
+              </div>
+            </div>
+            <div class="frow">
+              <div class="fg" style="margin-bottom:0"><label>Shift Type</label><select class="fi"><option>Full Day (8+ hrs)</option><option>Half Day (4-8 hrs)</option><option>Part Time (&lt;4 hrs)</option></select></div>
+              <div class="fg" style="margin-bottom:0"><label>Avg. Daily Deliveries</label><input class="fi" type="number" value="22"/></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Reason for Appeal</div></div>
+          <div class="card-body">
+            <div class="fg"><label>Primary Grounds</label>
+              <select class="fi">
+                <option>AI misread my GPS zone — I was in a heavily affected area</option>
+                <option>Weather was worse than the API recorded</option>
+                <option>Payout amount was too low for cost of living in my city</option>
+                <option>Deliveries were cancelled by platform, not my choice</option>
+                <option>Vehicle damaged due to weather conditions</option>
+              </select>
+            </div>
+            <div class="fg"><label>Your Statement</label><textarea class="fi" placeholder="e.g. On March 3rd, Velachery was completely flooded. Blinkit suspended deliveries in my zone at 2:30 PM..."></textarea></div>
+            <div class="fg" style="margin-bottom:0"><label>Upload Evidence</label>
+              <div class="upload-zone" onclick="addChip()"><div style="font-size:20px;margin-bottom:4px">📎</div><div style="font-size:12px;color:var(--muted)">Screenshots, platform notifications, photos</div></div>
+              <div class="upload-chips" id="uchips"><div class="upload-chip">📸 zone_flood_photo.jpg</div><div class="upload-chip">📲 blinkit_suspension.png</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-head"><div class="card-title">🏙 City Context</div><div style="font-size:10px;color:var(--muted)">Auto-detected</div></div>
+          <div class="card-body">
+            <div style="display:flex;align-items:center;gap:9px;background:var(--s2);border-radius:var(--rs);padding:9px 12px;margin-bottom:12px">
+              <div style="font-size:20px">📍</div>
+              <div><div style="font-size:13px;font-weight:500">Chennai, Tamil Nadu</div><div style="font-size:11px;color:var(--muted)">Zone 2 — Velachery</div></div>
+              <select class="fi" style="margin-left:auto;width:auto;padding:5px 9px;font-size:11px" onchange="updateCity(this.value)">
+                <option>Chennai</option><option>Mumbai</option><option>Bangalore</option><option>Delhi NCR</option><option>Hyderabad</option><option>Pune</option>
+              </select>
+            </div>
+            <div class="city-row"><div class="city-key">Cost of Living Index</div><div class="city-val"><span class="col-pill col-mid" id="col-idx">Medium — 62/100</span></div></div>
+            <div class="city-row"><div class="city-key">Avg. Daily Delivery Wage</div><div class="city-val" id="col-wage">₹680 – ₹950</div></div>
+            <div class="city-row"><div class="city-key">Blinkit Avg. Per Order</div><div class="city-val">₹38 – ₹55</div></div>
+            <div class="city-row"><div class="city-key">Fuel Cost / Day</div><div class="city-val">₹120 – ₹160</div></div>
+            <div class="city-row"><div class="city-key">Storm Day Surge</div><div class="city-val" style="color:var(--green)">+40% earnings</div></div>
+            <div class="city-row" style="border-bottom:none"><div class="city-key">AI CoL Multiplier</div><div class="city-val" style="color:var(--purple)" id="col-mult">1.15×</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">❓ FAQ</div></div>
+          <div class="card-body" style="padding:12px">
+            <div class="acc-item"><div class="acc-head" onclick="togAcc(this)">How long does an appeal take? <span class="acc-arr">▾</span></div><div class="acc-body">AI-reviewed appeals resolve within <strong style="color:var(--text)">6–12 hours</strong>. Complex cases may take up to 48 hours.</div></div>
+            <div class="acc-item"><div class="acc-head" onclick="togAcc(this)">How does city cost factor in? <span class="acc-arr">▾</span></div><div class="acc-body">Our AI uses your city's CoL index and platform earnings to calculate realistic income loss. Mumbai losses are weighted higher than Tier-2 cities.</div></div>
+            <div class="acc-item"><div class="acc-head" onclick="togAcc(this)">Can I appeal twice? <span class="acc-arr">▾</span></div><div class="acc-body">Yes — 2 appeal chances per claim. The second appeal goes to a <strong style="color:var(--text)">human reviewer</strong>.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px">
+      <button class="btn-p" style="padding:11px 28px" onclick="aStep(2)">Continue to Weather Details →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div id="astep2" style="display:none">
+    <div class="gmain">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-head"><div class="card-title">🌩 Verified Weather — Mar 3, 2025</div><div style="font-size:10px;color:var(--blue)">● IMD + OpenWeather</div></div>
+          <div class="card-body">
+            <div style="background:var(--s2);border-radius:var(--rs);padding:13px;display:flex;align-items:center;gap:13px;margin-bottom:13px">
+              <div style="font-size:38px;flex-shrink:0">🌧</div>
+              <div style="flex:1">
+                <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px">Heavy Rain — Sustained</div>
+                <div style="display:flex;gap:14px;flex-wrap:wrap">
+                  <div style="font-size:11px;color:var(--muted)">Rainfall <span style="color:var(--text);font-weight:500">38mm</span></div>
+                  <div style="font-size:11px;color:var(--muted)">Wind <span style="color:var(--text);font-weight:500">42 km/h</span></div>
+                  <div style="font-size:11px;color:var(--muted)">Visibility <span style="color:var(--text);font-weight:500">380m</span></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+                  <div style="width:9px;height:9px;border-radius:50%;background:var(--yellow)"></div>
+                  <div style="font-size:11px;font-weight:600;color:var(--yellow)">Moderate–Severe (Level 3/5)</div>
+                </div>
+              </div>
+            </div>
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Confirm Actual Severity You Experienced</div>
+            <div class="sev-grid">
+              <div class="sev-btn" onclick="setSev(1,this)"><div style="font-size:18px;margin-bottom:3px">🌦</div><div style="font-size:10px;color:var(--blue);font-weight:500">Mild</div><div style="font-size:9px;color:var(--muted)">Some rain</div></div>
+              <div class="sev-btn" onclick="setSev(2,this)"><div style="font-size:18px;margin-bottom:3px">🌧</div><div style="font-size:10px;color:var(--yellow);font-weight:500">Moderate</div><div style="font-size:9px;color:var(--muted)">Deliveries slow</div></div>
+              <div class="sev-btn sel-3" onclick="setSev(3,this)"><div style="font-size:18px;margin-bottom:3px">⛈</div><div style="font-size:10px;color:var(--orange);font-weight:500">Severe ✓</div><div style="font-size:9px;color:var(--muted)">Undeliverable</div></div>
+              <div class="sev-btn" onclick="setSev(4,this)"><div style="font-size:18px;margin-bottom:3px">🌪</div><div style="font-size:10px;color:var(--red);font-weight:500">Extreme</div><div style="font-size:9px;color:var(--muted)">Life-threatening</div></div>
+            </div>
+            <div class="frow">
+              <div class="fg" style="margin-bottom:0"><label>Incident Start</label><input class="fi" type="time" value="13:00"/></div>
+              <div class="fg" style="margin-bottom:0"><label>Incident End</label><input class="fi" type="time" value="19:30"/></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">📲 Platform Evidence</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:7px">
+            <label style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--s2);border-radius:var(--rs);cursor:pointer;font-size:12px"><input type="checkbox" checked style="accent-color:var(--green)"/> Blinkit sent a <strong style="color:var(--text)">zone suspension notification</strong></label>
+            <label style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--s2);border-radius:var(--rs);cursor:pointer;font-size:12px"><input type="checkbox" checked style="accent-color:var(--green)"/> Orders were <strong style="color:var(--text)">automatically cancelled</strong> by platform</label>
+            <label style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--s2);border-radius:var(--rs);cursor:pointer;font-size:12px"><input type="checkbox" style="accent-color:var(--green)"/> Received a <strong style="color:var(--text)">weather hazard alert</strong> from app</label>
+            <label style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--s2);border-radius:var(--rs);cursor:pointer;font-size:12px"><input type="checkbox" style="accent-color:var(--green)"/> Vehicle <strong style="color:var(--text)">physically damaged</strong> due to flooding</label>
+            <div class="fg" style="margin-top:8px;margin-bottom:0"><label>Deliveries Missed</label><input class="fi" type="number" value="8"/></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-head"><div class="card-title">📊 API vs Your Report</div></div>
+          <div class="card-body">
+            <div style="background:var(--s2);border-radius:var(--rs);padding:10px 12px;margin-bottom:8px">
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px">IMD Recorded</div>
+              <div style="font-size:13px;font-weight:500">🌧 Heavy Rain — Level 3 boundary</div>
+              <div style="font-size:11px;color:var(--muted)">Rainfall: 38mm · Wind: 42 km/h</div>
+            </div>
+            <div style="text-align:center;font-size:16px;color:var(--muted);margin:4px 0">↕</div>
+            <div style="background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.2);border-radius:var(--rs);padding:10px 12px;margin-bottom:8px">
+              <div style="font-size:10px;color:var(--orange);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px">Your Report</div>
+              <div style="font-size:13px;font-weight:500">⛈ Severe Storm — Level 3+</div>
+              <div style="font-size:11px;color:var(--muted)">Blinkit zone suspension · 8 orders missed</div>
+            </div>
+            <div style="background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.15);border-radius:var(--rs);padding:10px 12px;font-size:12px;color:var(--muted2);line-height:1.5">
+              <strong style="color:var(--purple)">AI Note:</strong> Platform suspension logs carry high evidential weight. Zone 2 inland corridors may be under-reported at boundary sensors.
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">📁 Claim Timeline</div></div>
+          <div class="card-body" style="padding:12px 18px">
+            <div class="tl-item"><div class="tl-dot" style="background:var(--muted)"></div><div><div style="font-size:12px;font-weight:500">Claim Filed</div><div style="font-size:11px;color:var(--muted)">CLM-0033 submitted via app</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Mar 3, 2025 · 2:41 PM</div></div></div>
+            <div class="tl-item"><div class="tl-dot" style="background:var(--yellow)"></div><div><div style="font-size:12px;font-weight:500">AI Auto-Review</div><div style="font-size:11px;color:var(--muted)">Confidence 22% — borderline zone</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Mar 3, 2025 · 2:43 PM</div></div></div>
+            <div class="tl-item"><div class="tl-dot" style="background:var(--red)"></div><div><div style="font-size:12px;font-weight:500">Claim Rejected</div><div style="font-size:11px;color:var(--muted)">Insufficient weather evidence at GPS</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Mar 3, 2025 · 4:12 PM</div></div></div>
+            <div class="tl-item" style="border-bottom:none"><div class="tl-dot" style="background:var(--purple);box-shadow:0 0 6px rgba(167,139,250,.5)"></div><div><div style="font-size:12px;font-weight:500;color:var(--purple)">Appeal In Progress</div><div style="font-size:11px;color:var(--muted)">You're filing an appeal now</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Today</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="brow" style="margin-top:16px">
+      <button class="btn-s" onclick="aStep(1)">← Back</button>
+      <button class="btn-p" style="flex:1" onclick="aStep(3)">Run AI Assessment →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: AI Assessment -->
+  <div id="astep3" style="display:none">
+    <div id="ai-thinking" style="text-align:center;padding:40px 0">
+      <div style="font-size:48px;margin-bottom:14px;animation:orb-pulse 2s ease-in-out infinite">🤖</div>
+      <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:7px;color:var(--purple)">AI Assessment Running...</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Analysing weather records, GPS data, city CoL, platform signals</div>
+      <div class="thinking-dots"><span></span><span></span><span></span></div>
+    </div>
+    <div id="ai-result" style="display:none">
+      <div class="gmain">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="ai-panel">
+            <div class="ai-head">
+              <div class="ai-orb">🤖</div>
+              <div><div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--purple)">AI Appeal Assessment</div><div style="font-size:11px;color:var(--muted)">Processed in 2.4s · Model v2.1</div></div>
+              <div style="margin-left:auto;text-align:right"><div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--green)">78%</div><div style="font-size:10px;color:var(--muted)">Appeal Confidence</div></div>
+            </div>
+            <div style="padding:16px">
+              <div style="margin-bottom:14px">
+                <div class="factor-item"><div class="factor-top"><div class="factor-name">Weather severity match</div><div class="factor-score" style="color:var(--orange)">72 / 100</div></div><div class="fbar-wrap"><div class="fbar" style="width:72%;background:var(--orange)"></div></div></div>
+                <div class="factor-item"><div class="factor-top"><div class="factor-name">GPS zone validation</div><div class="factor-score" style="color:var(--yellow)">61 / 100</div></div><div class="fbar-wrap"><div class="fbar" style="width:61%;background:var(--yellow)"></div></div></div>
+                <div class="factor-item"><div class="factor-top"><div class="factor-name">Platform suspension signal</div><div class="factor-score" style="color:var(--green)">95 / 100</div></div><div class="fbar-wrap"><div class="fbar" style="width:95%;background:var(--green)"></div></div></div>
+                <div class="factor-item"><div class="factor-top"><div class="factor-name">City CoL adjustment (Chennai)</div><div class="factor-score" style="color:var(--blue)">1.15×</div></div><div class="fbar-wrap"><div class="fbar" style="width:65%;background:var(--blue)"></div></div></div>
+                <div class="factor-item" style="margin-bottom:0"><div class="factor-top"><div class="factor-name">Income loss realism (Blinkit)</div><div class="factor-score" style="color:var(--purple)">88 / 100</div></div><div class="fbar-wrap"><div class="fbar" style="width:88%;background:var(--purple)"></div></div></div>
+              </div>
+              <div style="background:rgba(76,255,160,.06);border:1px solid rgba(76,255,160,.15);border-radius:var(--rs);padding:12px;font-size:12px;color:var(--muted2);line-height:1.6">
+                <strong style="color:var(--green)">AI Verdict:</strong> The original rejection was likely an error. Platform suspension data strongly corroborates this claim. Zone 2 IMD records show partial coverage — inner Velachery corridors experienced Level 4 rainfall not captured at boundary sensors. Revised payout recommended: <strong style="color:var(--green)">₹420 – ₹490</strong>.
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">💰 Revised Payout Estimate</div></div>
+            <div class="card-body" style="padding:0 20px 18px">
+              <div class="payout-total"><div class="payout-lbl">Recommended Payout</div><div class="payout-amt">₹455</div><div class="payout-range">Range: ₹420 – ₹490 based on final review</div></div>
+              <div style="padding-top:10px">
+                <div class="bdown-row"><div class="bdown-key">Base: 8 deliveries × ₹38</div><div class="bdown-val">₹304</div></div>
+                <div class="bdown-row"><div class="bdown-key">Severity bonus (Level 3)</div><div class="bdown-val" style="color:var(--green)">+₹64</div></div>
+                <div class="bdown-row"><div class="bdown-key">Chennai CoL multiplier (1.15×)</div><div class="bdown-val" style="color:var(--blue)">+₹55</div></div>
+                <div class="bdown-row"><div class="bdown-key">Platform suspension evidence</div><div class="bdown-val" style="color:var(--green)">+₹32</div></div>
+                <div class="bdown-row"><div class="bdown-key">Original requested</div><div class="bdown-val" style="color:var(--red)">₹180</div></div>
+                <div class="bdown-row"><div class="bdown-key">Revised total</div><div class="bdown-val" style="color:var(--green)">₹455</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <div class="card-head"><div class="card-title">🧠 How AI Decided</div></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:9px">
+              <div style="display:flex;gap:9px;padding:10px;background:var(--s2);border-radius:var(--rs)"><div style="font-size:15px;flex-shrink:0">🗺</div><div><div style="font-size:12px;font-weight:500;margin-bottom:2px">GPS Re-Analysis</div><div style="font-size:11px;color:var(--muted);line-height:1.4">Your pin is 1.2 km inside Zone 2, near the Velachery lake overflow boundary — a known flood zone not covered by the boundary sensor.</div></div></div>
+              <div style="display:flex;gap:9px;padding:10px;background:var(--s2);border-radius:var(--rs)"><div style="font-size:15px;flex-shrink:0">📲</div><div><div style="font-size:12px;font-weight:500;margin-bottom:2px">Platform Signal (High Weight)</div><div style="font-size:11px;color:var(--muted);line-height:1.4">Blinkit suspended deliveries in Velachery at 14:30. This is treated as ground-truth evidence — more reliable than IMD boundary readings.</div></div></div>
+              <div style="display:flex;gap:9px;padding:10px;background:var(--s2);border-radius:var(--rs)"><div style="font-size:15px;flex-shrink:0">🏙</div><div><div style="font-size:12px;font-weight:500;margin-bottom:2px">Chennai CoL Factor</div><div style="font-size:11px;color:var(--muted);line-height:1.4">Chennai scores 62/100 on our CoL Index. Quick commerce drivers earn ₹680–₹950/day. Income loss is calculated against this baseline.</div></div></div>
+              <div style="display:flex;gap:9px;padding:10px;background:var(--s2);border-radius:var(--rs)"><div style="font-size:15px;flex-shrink:0">⚡</div><div><div style="font-size:12px;font-weight:500;margin-bottom:2px">Quick Commerce Surge Loss</div><div style="font-size:11px;color:var(--muted);line-height:1.4">Blinkit drivers miss +40% surge earnings on storm days. This opportunity cost is included in the revised estimate.</div></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">⚖️ Appeal Status</div></div>
+            <div class="card-body">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px">
+                <div style="font-size:12px;color:var(--muted)">Appeals remaining</div>
+                <div style="display:flex;gap:5px">
+                  <div style="width:12px;height:12px;border-radius:50%;background:var(--purple)"></div>
+                  <div style="width:12px;height:12px;border-radius:50%;background:var(--s3);border:1px solid var(--border2)"></div>
+                </div>
+              </div>
+              <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:11px">This is your <strong style="color:var(--text)">1st appeal</strong>. If rejected, you have 1 more chance with a <strong style="color:var(--text)">human reviewer</strong>.</div>
+              <div style="background:rgba(76,255,160,.07);border:1px solid rgba(76,255,160,.15);border-radius:var(--rs);padding:9px;font-size:12px;color:var(--green)">✓ AI recommends approving this appeal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="brow" style="margin-top:16px">
+        <button class="btn-s" onclick="aStep(2)">← Back</button>
+        <button class="btn-p" style="flex:1" onclick="aStep(4)">Review &amp; Submit Appeal →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: Submit -->
+  <div id="astep4" style="display:none">
+    <div class="gmain">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-head"><div class="card-title">📋 Appeal Summary</div></div>
+          <div class="card-body">
+            <div class="city-row" style="grid-column:1/3"><div class="city-key">Claim appealed</div><div class="city-val" style="color:var(--purple)">#CLM-0033 — Heavy Rain, Mar 3</div></div>
+            <div class="city-row"><div class="city-key">Platform</div><div class="city-val">🟡 Blinkit</div></div>
+            <div class="city-row"><div class="city-key">City</div><div class="city-val">Chennai</div></div>
+            <div class="city-row"><div class="city-key">Deliveries missed</div><div class="city-val">8</div></div>
+            <div class="city-row"><div class="city-key">Severity confirmed</div><div class="city-val" style="color:var(--orange)">Level 3 — Severe</div></div>
+            <div class="city-row"><div class="city-key">Evidence submitted</div><div class="city-val" style="color:var(--green)">2 files</div></div>
+            <div class="city-row"><div class="city-key">AI confidence</div><div class="city-val" style="color:var(--green)">78% — Likely Approve</div></div>
+            <div class="city-row" style="border-bottom:none"><div class="city-key">Revised payout estimate</div><div class="city-val" style="color:var(--green);font-family:'Syne',sans-serif;font-size:16px;font-weight:800">₹455</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">✅ Confirm &amp; Submit</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:9px">
+            <label style="display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--muted2);cursor:pointer;line-height:1.5"><input type="checkbox" id="c1" style="accent-color:var(--green);margin-top:2px;flex-shrink:0"/> I confirm all information is accurate to the best of my knowledge.</label>
+            <label style="display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--muted2);cursor:pointer;line-height:1.5"><input type="checkbox" id="c2" style="accent-color:var(--green);margin-top:2px;flex-shrink:0"/> I understand submitting false evidence results in permanent account suspension.</label>
+            <label style="display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--muted2);cursor:pointer;line-height:1.5"><input type="checkbox" id="c3" style="accent-color:var(--green);margin-top:2px;flex-shrink:0"/> I accept that the final payout may vary from the estimate.</label>
+            <div class="divider"></div>
+            <button class="btn-p" onclick="submitAppeal()">Submit Appeal ⚖️</button>
+            <div style="font-size:11px;color:var(--muted);text-align:center">Expected review: <strong style="color:var(--text)">6–12 hours</strong> · Push notification at every step</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <div class="card-head"><div class="card-title">🔄 What Happens Next</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:11px">
+            <div style="display:flex;gap:9px"><div style="width:22px;height:22px;border-radius:50%;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--purple);flex-shrink:0">1</div><div><div style="font-size:12px;font-weight:500">AI Re-processes</div><div style="font-size:11px;color:var(--muted)">All new evidence re-assessed with platform signals</div></div></div>
+            <div style="display:flex;gap:9px"><div style="width:22px;height:22px;border-radius:50%;background:rgba(76,255,160,.1);border:1px solid rgba(76,255,160,.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--green);flex-shrink:0">2</div><div><div style="font-size:12px;font-weight:500">Payout Recalculated</div><div style="font-size:11px;color:var(--muted)">City CoL + platform data + severity = final number</div></div></div>
+            <div style="display:flex;gap:9px"><div style="width:22px;height:22px;border-radius:50%;background:rgba(76,184,255,.1);border:1px solid rgba(76,184,255,.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--blue);flex-shrink:0">3</div><div><div style="font-size:12px;font-weight:500">Notification Sent</div><div style="font-size:11px;color:var(--muted)">Push notification within 6–12 hrs</div></div></div>
+            <div style="display:flex;gap:9px"><div style="width:22px;height:22px;border-radius:50%;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--yellow);flex-shrink:0">4</div><div><div style="font-size:12px;font-weight:500">Payout Credited</div><div style="font-size:11px;color:var(--muted)">UPI / bank transfer within 2 hrs of approval</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">📞 Need Help?</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn-ghost" style="width:100%">💬 Chat with Support</button>
+            <button class="btn-s" style="font-size:12px;padding:8px">📞 Call: 1800-XXX-XXXX</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:16px"><button class="btn-s" onclick="aStep(3)">← Back to Assessment</button></div>
+  </div>
+
+  <!-- STEP 5: Success -->
+  <div id="astep5" style="display:none;text-align:center;padding:50px 20px">
+    <div style="font-size:54px;margin-bottom:14px;animation:orb-pulse 2s ease-in-out infinite">⚖️</div>
+    <h2 style="font-size:22px;margin-bottom:7px;color:var(--green)">Appeal Submitted!</h2>
+    <p style="color:var(--muted);font-size:13px;max-width:420px;margin:0 auto 24px;line-height:1.6">Your appeal for <strong style="color:var(--text)">#CLM-0033</strong> is in the AI review queue. You'll receive a notification within <strong style="color:var(--text)">6–12 hours</strong>.</p>
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px;max-width:340px;margin:0 auto 22px;text-align:left">
+      <div class="city-row"><div class="city-key">Appeal ID</div><div class="city-val" style="color:var(--purple);font-family:'Syne',sans-serif">#APL-0009</div></div>
+      <div class="city-row"><div class="city-key">Claim</div><div class="city-val">#CLM-0033</div></div>
+      <div class="city-row"><div class="city-key">AI Estimate</div><div class="city-val" style="color:var(--green)">₹455</div></div>
+      <div class="city-row" style="border-bottom:none"><div class="city-key">Expected by</div><div class="city-val">Today by 8 PM</div></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;max-width:340px;margin:0 auto">
+      <button class="btn-s" style="flex:1" onclick="resetAppeal()">New Appeal</button>
+      <button class="btn-p" style="flex:1" onclick="go('claims',document.querySelectorAll('.nav-item')[1])">View My Claims</button>
+    </div>
+  </div>
+</div><!-- /pg-appeal -->
+
+<!-- ══════════════════════════════════════════
+     PAGE: WEATHER MAP
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-weather">
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><div class="card-title">🗺 Live Weather Map — Chennai</div><div style="font-size:11px;color:var(--yellow)">● Updated 2 min ago</div></div>
+      <div class="card-body">
+        <div class="map-box" style="height:260px">
+          <div class="map-grid"></div>
+          <div class="map-storm" style="width:90px;height:90px;background:rgba(255,107,53,.25);border:2px solid rgba(255,107,53,.5);left:35%;top:25%"></div>
+          <div class="map-storm" style="width:60px;height:60px;background:rgba(255,107,53,.15);border:1px solid rgba(255,107,53,.3);left:55%;top:50%"></div>
+          <div class="map-storm" style="width:110px;height:110px;background:rgba(76,187,255,.1);border:1px solid rgba(76,187,255,.2);left:15%;top:50%"></div>
+          <div class="map-lbl" style="left:37%;top:28%;color:var(--orange)">ZONE 3 ⚠</div>
+          <div class="map-lbl" style="left:56%;top:52%;color:var(--yellow)">ZONE 5</div>
+          <div class="map-lbl" style="left:17%;top:53%;color:var(--blue)">ZONE 1</div>
+          <div class="map-lbl" style="right:14px;bottom:10px;color:var(--muted)">Chennai, TN</div>
+        </div>
+        <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,107,53,.5)"></div>Severe Storm</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:50%;background:rgba(255,209,102,.5)"></div>Heavy Rain</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)"><div style="width:10px;height:10px;border-radius:50%;background:rgba(76,187,255,.5)"></div>Moderate Rain</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Zone Risk Levels</div></div>
+        <div class="card-body">
+          <div class="risk-row"><div class="risk-lbl">Zone 3</div><div class="risk-wrap"><div class="risk-bar" style="width:92%;background:var(--orange)"></div></div><div class="risk-cnt" style="color:var(--orange)">92</div></div>
+          <div class="risk-row"><div class="risk-lbl">Zone 5</div><div class="risk-wrap"><div class="risk-bar" style="width:74%;background:var(--yellow)"></div></div><div class="risk-cnt" style="color:var(--yellow)">74</div></div>
+          <div class="risk-row"><div class="risk-lbl">Zone 1</div><div class="risk-wrap"><div class="risk-bar" style="width:45%;background:var(--blue)"></div></div><div class="risk-cnt" style="color:var(--blue)">45</div></div>
+          <div class="risk-row"><div class="risk-lbl">Zone 2</div><div class="risk-wrap"><div class="risk-bar" style="width:28%;background:var(--green)"></div></div><div class="risk-cnt" style="color:var(--green)">28</div></div>
+          <div class="risk-row" style="margin-bottom:0"><div class="risk-lbl">Zone 4</div><div class="risk-wrap"><div class="risk-bar" style="width:12%;background:var(--muted)"></div></div><div class="risk-cnt" style="color:var(--muted)">12</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Today's Forecast</div></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">6 AM – 10 AM</span><span>Light drizzle 🌦</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">10 AM – 2 PM</span><span style="color:var(--yellow)">Heavy rain ⚠</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">2 PM – 6 PM</span><span style="color:var(--orange);font-weight:600">Cyclonic storm 🚨</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">6 PM – 10 PM</span><span>Moderate rain 🌧</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">10 PM +</span><span style="color:var(--green)">Clearing 🌤</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: PAYOUTS
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-payouts">
+  <div class="g3" style="margin-bottom:22px">
+    <div class="stat grn"><div class="stat-lbl">Total Earned</div><div class="stat-val grn">₹4,280</div><div class="stat-sub">Since joining</div><div class="stat-ico">💰</div></div>
+    <div class="stat blu"><div class="stat-lbl">This Month</div><div class="stat-val blu">₹840</div><div class="stat-sub">3 payouts <span>processed</span></div><div class="stat-ico">📅</div></div>
+    <div class="stat ylw"><div class="stat-lbl">Pending</div><div class="stat-val ylw">₹490</div><div class="stat-sub">2 claims <span>awaiting</span></div><div class="stat-ico">⏳</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><div class="card-title">Payment History</div></div>
+      <div class="card-body" style="padding:0 20px">
+        <div class="pay-list">
+          <div class="pay-item"><div class="pay-icon" style="background:rgba(76,255,160,.1)">🛡</div><div style="flex:1"><div class="pay-name">Claim #CLM-0041 — Storm Payout</div><div class="pay-date">Mar 17, 2025 · UPI to ****6782</div></div><div class="pay-amt" style="color:var(--green)">+₹350</div></div>
+          <div class="pay-item"><div class="pay-icon" style="background:rgba(167,139,250,.1)">⚖️</div><div style="flex:1"><div class="pay-name">Appeal #APL-0008 — Revised Payout</div><div class="pay-date">Mar 15, 2025 · UPI to ****6782</div></div><div class="pay-amt" style="color:var(--green)">+₹420</div></div>
+          <div class="pay-item"><div class="pay-icon" style="background:rgba(76,255,160,.1)">🛡</div><div style="flex:1"><div class="pay-name">Claim #CLM-0037 — Flood Payout</div><div class="pay-date">Mar 10, 2025 · UPI to ****6782</div></div><div class="pay-amt" style="color:var(--green)">+₹490</div></div>
+          <div class="pay-item"><div class="pay-icon" style="background:rgba(76,184,255,.1)">💳</div><div style="flex:1"><div class="pay-name">Standard Plan Premium</div><div class="pay-date">Mar 1, 2025 · Auto-deducted</div></div><div class="pay-amt" style="color:var(--red)">−₹199</div></div>
+          <div class="pay-item"><div class="pay-icon" style="background:rgba(76,255,160,.1)">🛡</div><div style="flex:1"><div class="pay-name">Claim #CLM-0030 — Storm Payout</div><div class="pay-date">Feb 28, 2025 · UPI to ****6782</div></div><div class="pay-amt" style="color:var(--green)">+₹490</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">Bank / UPI Details</div></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+        <div style="background:var(--s2);border-radius:var(--rs);padding:13px;display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:11px;color:var(--muted)">UPI ID</div><div style="font-size:14px;font-weight:500;margin-top:2px">ravi.kumar@upi</div></div>
+          <span class="badge b-approved">Primary</span>
+        </div>
+        <div style="background:var(--s2);border-radius:var(--rs);padding:13px;display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:11px;color:var(--muted)">Bank Account</div><div style="font-size:14px;font-weight:500;margin-top:2px">SBI ****6782</div></div>
+          <span class="badge b-review">Secondary</span>
+        </div>
+        <button class="btn-s" style="font-size:13px">+ Add Payment Method</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: COVERAGE
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-coverage">
+  <div class="g3" style="margin-bottom:22px">
+    <div class="plan"><div class="plan-name">Basic</div><div class="plan-price">₹99 <span>/ month</span></div><ul class="plan-feat"><li>Storm coverage only</li><li>₹150/missed delivery</li><li>Manual review</li><li>48hr payout</li></ul></div>
+    <div class="plan featured"><div style="font-size:10px;background:rgba(76,255,160,.15);color:var(--green);padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:8px;font-weight:600">✓ CURRENT PLAN</div><div class="plan-name">Standard</div><div class="plan-price">₹199 <span>/ month</span></div><ul class="plan-feat"><li>All weather conditions</li><li>₹85/delivery + severity bonus</li><li>AI auto-approval</li><li>4hr avg. payout</li><li>Priority support</li></ul></div>
+    <div class="plan"><div class="plan-name">Premium</div><div class="plan-price">₹349 <span>/ month</span></div><ul class="plan-feat"><li>All weather + vehicle damage</li><li>₹150/delivery + full bonus</li><li>Instant payout (&lt;60 sec)</li><li>Dedicated support agent</li><li>Medical emergency add-on</li></ul><button class="btn-p" style="margin-top:14px;width:100%">Upgrade →</button></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div class="card-title">Coverage Usage — March 2025</div></div>
+    <div class="card-body">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span style="color:var(--muted)">Days covered</span><span>22 / 30</span></div>
+      <div class="cov-wrap"><div class="cov-bar" style="width:73%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px;margin-top:10px"><span style="color:var(--muted)">Claims used</span><span>7 / unlimited</span></div>
+      <div class="cov-wrap"><div class="cov-bar" style="width:40%;background:linear-gradient(90deg,var(--blue),var(--green))"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px;margin-top:10px"><span style="color:var(--muted)">Payout limit used</span><span>₹4,280 / ₹10,000</span></div>
+      <div class="cov-wrap"><div class="cov-bar" style="width:43%;background:linear-gradient(90deg,var(--yellow),var(--green))"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: ANALYTICS
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-analytics">
+  <div class="g4" style="margin-bottom:22px">
+    <div class="stat grn"><div class="stat-lbl">Total Claims</div><div class="stat-val grn">9</div><div class="stat-sub"><span>7 approved</span></div><div class="stat-ico">📋</div></div>
+    <div class="stat blu"><div class="stat-lbl">Avg. Payout</div><div class="stat-val blu">₹378</div><div class="stat-sub">Per approved claim</div><div class="stat-ico">📊</div></div>
+    <div class="stat ylw"><div class="stat-lbl">Approval Rate</div><div class="stat-val ylw">78%</div><div class="stat-sub">Above avg. <span>62%</span></div><div class="stat-ico">✓</div></div>
+    <div class="stat pur"><div class="stat-lbl">Appeals Won</div><div class="stat-val pur">2/2</div><div class="stat-sub">100% success rate</div><div class="stat-ico">⚖️</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><div class="card-title">Monthly Payouts (2025)</div></div>
+      <div class="card-body">
+        <div class="chart-group">
+          <div class="chart-col"><div class="chart-bar" style="height:30px;background:var(--s3)"></div><div class="chart-lbl">Jan</div></div>
+          <div class="chart-col"><div class="chart-bar" style="height:55px;background:var(--blue)"></div><div class="chart-lbl">Feb</div></div>
+          <div class="chart-col"><div class="chart-bar" style="height:90px;background:var(--green)"></div><div class="chart-lbl">Mar</div></div>
+          <div class="chart-col"><div class="chart-bar" style="height:45px;background:var(--s3)"></div><div class="chart-lbl">Apr</div></div>
+          <div class="chart-col"><div class="chart-bar" style="height:20px;background:var(--s3)"></div><div class="chart-lbl">May</div></div>
+          <div class="chart-col"><div class="chart-bar" style="height:70px;background:var(--s3)"></div><div class="chart-lbl">Jun</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-title">Claims by Condition</div></div>
+      <div class="card-body">
+        <div class="risk-row"><div class="risk-lbl" style="width:80px">Storm</div><div class="risk-wrap"><div class="risk-bar" style="width:55%;background:var(--orange)"></div></div><div class="risk-cnt">5</div></div>
+        <div class="risk-row"><div class="risk-lbl" style="width:80px">Heavy Rain</div><div class="risk-wrap"><div class="risk-bar" style="width:33%;background:var(--blue)"></div></div><div class="risk-cnt">3</div></div>
+        <div class="risk-row" style="margin-bottom:0"><div class="risk-lbl" style="width:80px">Flood</div><div class="risk-wrap"><div class="risk-bar" style="width:11%;background:var(--green)"></div></div><div class="risk-cnt">1</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: PROFILE
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-profile">
+  <div class="prof-head">
+    <div class="prof-av">RK</div>
+    <div><h2 style="font-size:21px;margin-bottom:3px">Ravi Kumar</h2><div style="font-size:13px;color:var(--muted)">Delivery Agent · ID: DA-00842 · Blinkit</div>
+      <div class="prof-meta"><div class="meta-chip">📍 Chennai, TN</div><div class="meta-chip">🛵 2-Wheeler</div><div class="meta-chip">⭐ 4.8 Rating</div><div class="meta-chip">📅 Feb 2024</div><div class="meta-chip" style="color:var(--green)">✓ Verified</div></div>
+    </div>
+    <button class="btn-s" style="margin-left:auto;padding:9px 16px;font-size:13px">Edit Profile</button>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><div class="card-title">Personal Details</div></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:0">
+        <div class="fg"><label>Full Name</label><input class="fi" value="Ravi Kumar"/></div>
+        <div class="frow"><div class="fg"><label>Phone</label><input class="fi" value="+91 98765 43210"/></div><div class="fg"><label>Alt. Phone</label><input class="fi" value="+91 91234 56789"/></div></div>
+        <div class="fg"><label>Email</label><input class="fi" value="ravi.kumar@gmail.com"/></div>
+        <div class="fg" style="margin-bottom:0"><label>Home Address</label><input class="fi" value="14, 3rd Cross St, T. Nagar, Chennai"/></div>
+        <button class="btn-p" style="margin-top:14px" onclick="showToast('Profile saved!','success')">Save Changes</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Vehicle Details</div></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:9px">
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Vehicle</span><span>Honda Activa 6G</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Reg. number</span><span>TN 09 AB 1234</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--muted)">Insurance valid</span><span style="color:var(--green)">Until Dec 2025</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Documents</div></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span>Aadhar Card</span><span class="badge b-approved">✓ Verified</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span>Driving License</span><span class="badge b-approved">✓ Verified</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span>PAN Card</span><span class="badge b-approved">✓ Verified</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span>Bank Passbook</span><span class="badge b-pending">⏳ Pending</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE: SETTINGS
+══════════════════════════════════════════ -->
+<div class="pg" id="pg-settings">
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><div class="card-title">Notifications</div></div>
+      <div class="card-body">
+        <div class="set-row"><div class="set-info"><h4>Storm Alerts</h4><p>Get notified when a storm hits your zone</p></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="set-row"><div class="set-info"><h4>Claim Status Updates</h4><p>Approved, rejected, or in-review</p></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="set-row"><div class="set-info"><h4>Appeal Decisions</h4><p>Notified when appeal is resolved</p></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="set-row"><div class="set-info"><h4>Payout Alerts</h4><p>Notify when money is credited</p></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="set-row"><div class="set-info"><h4>Weekly Summary</h4><p>Weekly earnings &amp; claim digest</p></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <div class="set-row"><div class="set-info"><h4>Promotional Offers</h4><p>Plan upgrades &amp; special deals</p></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Privacy &amp; Security</div></div>
+        <div class="card-body">
+          <div class="set-row"><div class="set-info"><h4>GPS Auto-Detect</h4><p>Auto-detect location for claims</p></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="set-row"><div class="set-info"><h4>Biometric Login</h4><p>Use fingerprint to log in</p></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="set-row"><div class="set-info"><h4>Two-Factor Auth</h4><p>Extra security for payouts</p></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Language &amp; Region</div></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:11px">
+          <div class="fg" style="margin-bottom:0"><label>Language</label><select class="fi"><option>English</option><option>Tamil</option><option>Hindi</option><option>Telugu</option></select></div>
+          <div class="fg" style="margin-bottom:0"><label>Currency</label><select class="fi"><option>₹ Indian Rupee (INR)</option></select></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div><!-- /scroll -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+const titles={dashboard:'Dashboard',claims:'My Claims',fileclaim:'File a Claim',appeal:'Appeal Request',weather:'Weather Map',payouts:'Payouts',coverage:'My Coverage',analytics:'Analytics',profile:'Profile',settings:'Settings'};
+
+function go(id,el){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));
+  const p=document.getElementById('pg-'+id);
+  if(p) p.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('ptitle').textContent=titles[id]||id;
+  document.querySelector('.scroll').scrollTop=0;
+}
+
+// Appeal steps
+function aStep(n){
+  for(let i=1;i<=5;i++){const el=document.getElementById('astep'+i);if(el)el.style.display='none';}
+  for(let i=1;i<=4;i++){
+    const c=document.getElementById('sc'+i),l=document.getElementById('sl'+i),line=document.getElementById('sline'+i);
+    if(!c)continue;
+    c.className='step-c '+(i<n?'done':i===n?'active':'todo');
+    c.textContent=i<n?'✓':String(i);
+    if(l)l.className='step-lbl '+(i<n?'done':i===n?'active':'todo');
+    if(line)line.className='step-line '+(i<n?'done':'');
+  }
+  if(n===3){
+    document.getElementById('astep3').style.display='block';
+    document.getElementById('ai-thinking').style.display='block';
+    document.getElementById('ai-result').style.display='none';
+    setTimeout(()=>{document.getElementById('ai-thinking').style.display='none';document.getElementById('ai-result').style.display='block';},2800);
+  } else {
+    const el=document.getElementById('astep'+n);if(el)el.style.display='block';
+  }
+  document.querySelector('.scroll').scrollTop=0;
+}
+
+function resetAppeal(){
+  for(let i=1;i<=5;i++){const el=document.getElementById('astep'+i);if(el)el.style.display='none';}
+  document.getElementById('astep1').style.display='block';
+  for(let i=1;i<=4;i++){
+    const c=document.getElementById('sc'+i),l=document.getElementById('sl'+i),line=document.getElementById('sline'+i);
+    if(c){c.className='step-c '+(i===1?'active':'todo');c.textContent=String(i);}
+    if(l)l.className='step-lbl '+(i===1?'active':'todo');
+    if(line)line.className='step-line';
+  }
+}
+
+function submitAppeal(){
+  const c1=document.getElementById('c1'),c2=document.getElementById('c2'),c3=document.getElementById('c3');
+  if(!c1.checked||!c2.checked||!c3.checked){showToast('Please check all boxes','info');return;}
+  for(let i=1;i<=5;i++){const el=document.getElementById('astep'+i);if(el)el.style.display='none';}
+  document.getElementById('astep5').style.display='block';
+  for(let i=1;i<=4;i++){
+    const c=document.getElementById('sc'+i),l=document.getElementById('sl'+i),line=document.getElementById('sline'+i);
+    if(c){c.className='step-c done';c.textContent='✓';}
+    if(l)l.className='step-lbl done';
+    if(line)line.className='step-line done';
+  }
+  showToast('Appeal submitted! ⚖️','success');
+}
+
+function selClaim(el){
+  document.querySelectorAll('.claim-opt').forEach(c=>{
+    c.style.border='1px solid var(--border)';c.style.background='var(--s2)';
+    const d=c.querySelector('.sel-dot');if(d){d.style.background='var(--s3)';d.style.border='1px solid var(--border2)';d.innerHTML='';}
+  });
+  el.style.border='1px solid rgba(167,139,250,.35)';el.style.background='rgba(167,139,250,.07)';
+  const d=el.querySelector('.sel-dot');if(d){d.style.background='var(--purple)';d.style.border='none';d.innerHTML='✓';}
+}
+
+function selPlat(el,grp){
+  document.querySelectorAll('#'+grp+' .plat-pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function setSev(level,el){
+  document.querySelectorAll('.sev-btn').forEach(b=>b.className='sev-btn');
+  el.className='sev-btn sel-'+level;
+}
+
+let chipN=3;
+function addChip(){
+  const items=['📷 photo_'+chipN+'.jpg','📲 notification_'+chipN+'.png','🎥 video_'+chipN+'.mp4'];
+  const c=document.getElementById('uchips');
+  const d=document.createElement('div');d.className='upload-chip';d.textContent=items[chipN%3];
+  c.appendChild(d);chipN++;showToast('File added','success');
+}
+
+function togAcc(head){
+  const b=head.nextElementSibling,a=head.querySelector('.acc-arr');
+  b.classList.toggle('open');a.classList.toggle('open');
+}
+
+function setTab(el){
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+const cityData={
+  'Chennai':{idx:'Medium — 62/100',cls:'col-mid',wage:'₹680 – ₹950',mult:'1.15×'},
+  'Mumbai':{idx:'High — 84/100',cls:'col-high',wage:'₹950 – ₹1,350',mult:'1.40×'},
+  'Bangalore':{idx:'High — 78/100',cls:'col-high',wage:'₹850 – ₹1,200',mult:'1.32×'},
+  'Delhi NCR':{idx:'High — 76/100',cls:'col-high',wage:'₹820 – ₹1,150',mult:'1.28×'},
+  'Hyderabad':{idx:'Medium — 66/100',cls:'col-mid',wage:'₹720 – ₹1,000',mult:'1.20×'},
+  'Pune':{idx:'Medium — 68/100',cls:'col-mid',wage:'₹700 – ₹980',mult:'1.18×'}
+};
+function updateCity(city){
+  const d=cityData[city];if(!d)return;
+  const idx=document.getElementById('col-idx');
+  if(idx){idx.textContent=d.idx;idx.className='col-pill '+d.cls;}
+  const wage=document.getElementById('col-wage');if(wage)wage.textContent=d.wage;
+  const mult=document.getElementById('col-mult');if(mult)mult.textContent=d.mult;
+}
+
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type+' show';
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
